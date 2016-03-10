@@ -1,5 +1,4 @@
 require 'bundler'
-require 'rspec/core/rake_task'
 require 'bundler/gem_tasks'
 
 # Default directory to look in is `/specs`
