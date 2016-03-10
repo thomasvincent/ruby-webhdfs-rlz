@@ -26,7 +26,8 @@ module WebHDFS
     #
     #   FileUtils.set_server 'localhost', 50070
     #
-    def set_server(host, port, user = nil, doas = nil, proxy_address = nil, proxy_port = nil)
+    def set_server(host, port, user = nil, doas = nil, proxy_address = nil,
+                   proxy_port = nil)
       @fu_host = host
       @fu_port = port
       @fu_user = user
@@ -105,7 +106,7 @@ module WebHDFS
     #
     # file - local file path
     # path - HDFS file path
-    # options - :overwrite, :blocksize, :replication, :mode, :buffersize, :verbose
+    # options :overwrite, :blocksize, :replication, :mode, :buffersize, :verbose
     #
     # Examples
     #
@@ -113,9 +114,11 @@ module WebHDFS
     #
     def copy_from_local(file, path, options = {})
       opts = options.dup
-      fu_log "copy_from_local local=#{file} hdfs=#{path}" if opts.delete(:verbose)
-      if mode = opts.delete(:mode)
-        mode = ('%03o' % mode) if mode.is_a? Integer
+      fu_log "copy_from_local local=#{file} " \
+             "hdfs=#{path}" if opts.delete(:verbose)
+      mode = opts.delete(:mode)
+      if mode
+        mode = format('%03o', mode) if mode.is_a? Integer
       else
         mode = '644'
       end
@@ -130,17 +133,19 @@ module WebHDFS
     #
     # file - local file IO handle
     # path - HDFS file path
-    # options - :overwrite, :blocksize, :replication, :mode, :buffersize, :verbose
+    # options :overwrite, :blocksize, :replication, :mode, :buffersize, :verbose
     #
     # Examples
     #
-    #   FileUtils.copy_from_local_via_stream 'local_file_IO_handle', 'remote_file'
+    # FileUtils.copy_from_local_via_stream 'local_file_IO_handle', 'remote_file'
     #
     def copy_from_local_via_stream(file, path, options = {})
       opts = options.dup
-      fu_log "copy_from_local_via_stream local=#{file} hdfs=#{path}" if opts.delete(:verbose)
-      if mode = opts.delete(:mode)
-        mode = ('%03o' % mode) if mode.is_a? Integer
+      fu_log "copy_from_local_via_stream local=#{file} " \
+             "hdfs=#{path}" if opts.delete(:verbose)
+      mode = opts.delete(:mode)
+      if mode
+        mode = format('%03o', mode) if mode.is_a? Integer
       else
         mode = '644'
       end
@@ -201,9 +206,11 @@ module WebHDFS
     def mkdir(list, options = {})
       opts = options.dup
       list = [list].flatten
-      fu_log "mkdir #{options[:mode] ? ('-m %03o ' % options[:mode]) : ''}#{list.join ' '}" if opts.delete(:verbose)
-      if mode = opts[:mode]
-        mode = ('0%03o' % mode) if mode.is_a? Integer
+      fu_log "mkdir #{format('-m %03o ', options[:mode]) if options[:mode]}" \
+             "#{list.join ' '}" if opts.delete(:verbose)
+      mode = opts[:mode]
+      if mode
+        mode = format('0%03o', mode) if mode.is_a? Integer
       else
         mode = '0755'
       end
@@ -297,8 +304,9 @@ module WebHDFS
     def chmod(mode, list, options = {})
       opts = options.dup
       list = [list].flatten
-      fu_log format('chmod %o %s', mode, list.join(' ')) if opts.delete(:verbose)
-      mode = ('%03o' % mode) if mode.is_a? Integer
+      fu_log format('chmod %o %s', mode,
+                    list.join(' ')) if opts.delete(:verbose)
+      mode = format('%03o', mode) if mode.is_a? Integer
       c = client
       list.each do |entry|
         c.chmod(entry, mode, opts)
@@ -321,12 +329,12 @@ module WebHDFS
     def chown(user, group, list, options = {})
       opts = options.dup
       list = [list].flatten
-      fu_log sprintf('chown %s%s',
-                     [user, group].compact.join(':') + ' ',
-                     list.join(' ')) if opts.delete(:verbose)
+      fu_log format('chown %s%s',
+                    [user, group].compact.join(':') + ' ',
+                    list.join(' ')) if opts.delete(:verbose)
       c = client
       list.each do |entry|
-        c.chown(entry, { owner: user, group: group })
+        c.chown(entry, owner: user, group: group)
       end
     end
     module_function :chown
@@ -344,8 +352,8 @@ module WebHDFS
     def set_repl_factor(list, num, options = {})
       opts = options.dup
       list = [list].flatten
-      fu_log sprintf('set_repl_factor %s %d',
-                     list.join(' '), num) if opts.delete(:verbose)
+      fu_log format('set_repl_factor %s %d',
+                    list.join(' '), num) if opts.delete(:verbose)
       c = client
       list.each do |entry|
         c.replication(entry, num, opts)
@@ -367,7 +375,8 @@ module WebHDFS
       opts = options.dup
       list = [list].flatten
       time = time.to_i
-      fu_log sprintf('set_atime %s %d', list.join(' '), time) if opts.delete(:verbose)
+      fu_log format('set_atime %s %d',
+                    list.join(' '), time) if opts.delete(:verbose)
       c = client
       list.each do |entry|
         c.touch(entry, accesstime: time)
@@ -389,7 +398,8 @@ module WebHDFS
       opts = options.dup
       list = [list].flatten
       time = time.to_i
-      fu_log sprintf('set_mtime %s %d', list.join(' '), time) if opts.delete(:verbose)
+      fu_log format('set_mtime %s %d',
+                    list.join(' '), time) if opts.delete(:verbose)
       c = client
       list.each do |entry|
         c.touch(entry, modificationtime: time)
@@ -408,14 +418,15 @@ module WebHDFS
     # Internal: Logging
     def fu_log(msg)
       @fileutils_output ||= $stderr
-      @fileutils_label ||= ''
+      @fileutils_label  ||= ''
       @fileutils_output.puts @fileutils_label + msg
     end
     private_module_function :fu_log
 
     # Internal
     def client
-      client = WebHDFS::Client.new(@fu_host, @fu_port, @fu_user, @fu_doas, @fu_paddr, @fu_pport)
+      client = WebHDFS::Client.new(@fu_host, @fu_port, @fu_user, @fu_doas,
+                                   @fu_paddr, @fu_pport)
       client.httpfs_mode = true if @fu_httpfs_mode
       client.ssl = true if @fu_ssl
       client.ssl_ca_file = @fu_ssl_ca_file if @fu_ssl_ca_file

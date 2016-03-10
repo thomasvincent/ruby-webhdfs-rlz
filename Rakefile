@@ -10,7 +10,9 @@ Rake::TestTask.new(:test) do |test|
 end
 
 task :doc do |_t|
-  `bundle exec rdoc --markup=tomdoc --visibility=public --include=lib --exclude=test`
+  command = 'bundle exec rdoc --markup=tomdoc --visibility=public ' \
+            '--include=lib --exclude=test'
+  `#{command}`
 end
 
 task :coverage do |_t|

@@ -3,6 +3,7 @@ require 'uri'
 require 'json'
 require 'addressable/uri'
 
+require_relative 'utilities'
 require_relative 'exceptions'
 
 module WebHDFS
@@ -21,7 +22,7 @@ module WebHDFS
     attr_accessor :retry_interval     # default 1 ([sec], ignored when retry_known_errors is false)
     attr_accessor :ssl
     attr_accessor :ssl_ca_file
-    attr_reader :ssl_verify_mode
+    attr_reader   :ssl_verify_mode
     attr_accessor :ssl_cert
     attr_accessor :ssl_key
     attr_accessor :ssl_version
@@ -36,7 +37,9 @@ module WebHDFS
       @ssl_verify_mode = mode
     end
 
-    def initialize(host = 'localhost', port = 50_070, username = nil, doas = nil, proxy_address = nil, proxy_port = nil, http_headers = {})
+    def initialize(host = 'localhost', port = 50_070, username = nil,
+                   doas = nil, proxy_address = nil, proxy_port = nil,
+                   http_headers = {})
       @host = host
       @port = port
       @username = username
@@ -44,16 +47,14 @@ module WebHDFS
       @proxy_address = proxy_address
       @proxy_port = proxy_port
       @retry_known_errors = false
-      @retry_times = 1
-      @retry_interval = 1
+      @retry_times = @retry_interval = 1
 
       @httpfs_mode = false
 
       @ssl = false
       @ssl_ca_file = nil
       @ssl_verify_mode = nil
-      @ssl_cert = nil
-      @ssl_key = nil
+      @ssl_cert = @ssl_key = nil
       @ssl_version = nil
 
       @kerberos = false
@@ -62,7 +63,8 @@ module WebHDFS
     end
 
     # curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=CREATE
-    #                 [&overwrite=<true|false>][&blocksize=<LONG>][&replication=<SHORT>]
+    #                 [&overwrite=<true|false>][&blocksize=<LONG>]
+    #                 [&replication=<SHORT>]
     #                 [&permission=<OCTAL>][&buffersize=<INT>]"
     def create(path, body, options = {})
       options = options.merge('data' => 'true') if @httpfs_mode
@@ -70,9 +72,11 @@ module WebHDFS
       res = operate_requests('PUT', path, 'CREATE', options, body)
       res.code == '201'
     end
-    OPT_TABLE['CREATE'] = %w(overwrite blocksize replication permission buffersize data)
+    OPT_TABLE['CREATE'] = %w(overwrite blocksize replication permission
+                             buffersize data)
 
-    # curl -i -X POST "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=APPEND[&buffersize=<INT>]"
+    # curl -i -X POST "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=
+    #                      APPEND[&buffersize=<INT>]"
     def append(path, body, options = {})
       options = options.merge('data' => 'true') if @httpfs_mode
       check_options(options, OPT_TABLE['APPEND'])
@@ -91,7 +95,8 @@ module WebHDFS
     OPT_TABLE['OPEN'] = %w(offset length buffersize)
     alias open read
 
-    # curl -i -X PUT "http://<HOST>:<PORT>/<PATH>?op=MKDIRS[&permission=<OCTAL>]"
+    # curl -i -X PUT "http://<HOST>:<PORT>/<PATH>?op=
+    #                     MKDIRS[&permission=<OCTAL>]"
     def mkdir(path, options = {})
       check_options(options, OPT_TABLE['MKDIRS'])
       res = operate_requests('PUT', path, 'MKDIRS', options)
@@ -100,11 +105,13 @@ module WebHDFS
     OPT_TABLE['MKDIRS'] = ['permission']
     alias mkdirs mkdir
 
-    # curl -i -X PUT "<HOST>:<PORT>/webhdfs/v1/<PATH>?op=RENAME&destination=<PATH>"
+    # curl -i -X PUT "<HOST>:<PORT>/webhdfs/v1/<PATH>?op=
+    #                       RENAME&destination=<PATH>"
     def rename(path, dest, options = {})
       check_options(options, OPT_TABLE['RENAME'])
       dest = '/' + dest unless dest.start_with?('/')
-      res = operate_requests('PUT', path, 'RENAME', options.merge('destination' => dest))
+      res = operate_requests('PUT', path, 'RENAME',
+                             options.merge('destination' => dest))
       check_success_json(res, 'boolean')
     end
 
@@ -161,7 +168,8 @@ module WebHDFS
     #                 [&permission=<OCTAL>]"
     def chmod(path, mode, options = {})
       check_options(options, OPT_TABLE['SETPERMISSION'])
-      res = operate_requests('PUT', path, 'SETPERMISSION', options.merge('permission' => mode))
+      res = operate_requests('PUT', path, 'SETPERMISSION',
+                             options.merge('permission' => mode))
       res.code == '200'
     end
     alias setpermission chmod
@@ -184,7 +192,8 @@ module WebHDFS
     #                           [&replication=<SHORT>]"
     def replication(path, replnum, options = {})
       check_options(options, OPT_TABLE['SETREPLICATION'])
-      res = operate_requests('PUT', path, 'SETREPLICATION', options.merge('replication' => replnum.to_s))
+      res = operate_requests('PUT', path, 'SETREPLICATION',
+                             options.merge('replication' => replnum.to_s))
       check_success_json(res, 'boolean')
     end
     alias setreplication replication
@@ -197,7 +206,8 @@ module WebHDFS
       check_options(options, OPT_TABLE['SETTIMES'])
       unless options.key?('modificationtime') || options.key?('accesstime') ||
              options.key?(:modificationtime) || options.key?(:accesstime)
-        raise ArgumentError, "'chown' needs at least one of modificationtime or accesstime"
+        raise ArgumentError, "'chown' needs at least one of " \
+                               'modificationtime or accesstime'
       end
       res = operate_requests('PUT', path, 'SETTIMES', options)
       res.code == '200'
@@ -215,23 +225,6 @@ module WebHDFS
     #   raise NotImplementedError
     # end
 
-    def check_options(options, optdecl = [])
-      ex = options.keys.map(&:to_s) - (optdecl || [])
-      raise ArgumentError, "no such option: #{ex.join(' ')}" unless ex.empty?
-    end
-
-    def check_success_json(res, attr = nil)
-      res.code == '200' && res.content_type == 'application/json' && (attr.nil? || JSON.parse(res.body)[attr])
-    end
-
-    def api_path(path)
-      if path.start_with?('/')
-        '/webhdfs/v1' + path
-      else
-        '/webhdfs/v1/' + path
-      end
-    end
-
     def build_path(path, op, params)
       opts = if @username && @doas
                { 'op' => op, 'user.name' => @username, 'doas' => @doas }
@@ -242,8 +235,7 @@ module WebHDFS
              else
                { 'op' => op }
              end
-      query = URI.encode_www_form(params.merge(opts))
-      api_path(path) + '?' + query
+      api_path(path) + '?' + URI.encode_www_form(params.merge(opts))
     end
 
     REDIRECTED_OPERATIONS = %w(APPEND CREATE OPEN GETFILECHECKSUM).freeze
@@ -251,7 +243,8 @@ module WebHDFS
       if !@httpfs_mode && REDIRECTED_OPERATIONS.include?(op)
         res = request(@host, @port, method, path, op, params, nil)
         unless res.is_a?(Net::HTTPRedirection) && res['location']
-          msg = "NameNode returns non-redirection (or without location header), code:#{res.code}, body:#{res.body}."
+          msg = 'NameNode returns non-redirection (or without location' \
+                " header), code:#{res.code}, body:#{res.body}."
           raise WebHDFS::RequestFailedError, msg
         end
         uri = URI.parse(res['location'])
@@ -260,13 +253,13 @@ module WebHDFS
                 else
                   uri.path
                 end
-        request(uri.host, uri.port, method, rpath, nil, {}, payload, 'Content-Type' => 'application/octet-stream')
+        request(uri.host, uri.port, method, rpath, nil, {},
+                payload, 'Content-Type' => 'application/octet-stream')
+      elsif @httpfs_mode && !payload.nil?
+        request(@host, @port, method, path, op, params,
+                payload, 'Content-Type' => 'application/octet-stream')
       else
-        if @httpfs_mode && !payload.nil?
-          request(@host, @port, method, path, op, params, payload, 'Content-Type' => 'application/octet-stream')
-        else
-          request(@host, @port, method, path, op, params, payload)
-        end
+        request(@host, @port, method, path, op, params, payload)
       end
     end
 
@@ -276,14 +269,15 @@ module WebHDFS
     # IOException                   403 Forbidden
     # FileNotFoundException         404 Not Found
     # RumtimeException              500 Internal Server Error
-    def request(host, port, method, path, op = nil, params = {}, payload = nil, header = nil, retries = 0)
+    def request(host, port, method, path, op = nil, params = {},
+                payload = nil, header = nil, retries = 0)
       conn = Net::HTTP.new(host, port, @proxy_address, @proxy_port)
       conn.proxy_user = @proxy_user if @proxy_user
       conn.proxy_pass = @proxy_pass if @proxy_pass
       conn.open_timeout = @open_timeout if @open_timeout
       conn.read_timeout = @read_timeout if @read_timeout
 
-      path = Addressable::URI.escape(path) # make path safe for transmission via HTTP
+      path = Addressable::URI.escape(path) # make safe for transmission via HTTP
       request_path = if op
                        build_path(path, op, params)
                      else
@@ -318,7 +312,8 @@ module WebHDFS
         if header
           header['Authorization'] = "Negotiate #{Base64.strict_encode64(token)}"
         else
-          header = { 'Authorization' => "Negotiate #{Base64.strict_encode64(token)}" }
+          header = { 'Authorization' =>
+                     "Negotiate #{Base64.strict_encode64(token)}" }
         end
       else
         header = {} if header.nil?
@@ -326,29 +321,37 @@ module WebHDFS
       end
 
       res = nil
-      if !payload.nil? && payload.respond_to?(:read) && payload.respond_to?(:size)
-        req = Net::HTTPGenericRequest.new(method, (payload ? true : false), true, request_path, header)
-        raise WebHDFS::ClientError, 'Error accepting given IO resource as data payload, Not valid in methods other than PUT and POST' unless method == 'PUT' || method == 'POST'
+      if !payload.nil? && payload.respond_to?(:read) &&
+         payload.respond_to?(:size)
+        req = Net::HTTPGenericRequest.new(method, (payload ? true : false),
+                                          true, request_path, header)
+        raise WebHDFS::ClientError, 'Error accepting given IO resource as' \
+          ' data payload, Not valid in methods' \
+          ' other than PUT and POST' unless method == 'PUT' || method == 'POST'
 
         req.body_stream = payload
         req.content_length = payload.size
         begin
           res = conn.request(req)
         rescue => e
-          raise WebHDFS::ServerError, "Failed to connect to host #{host}:#{port}, #{e.message}"
+          raise WebHDFS::ServerError, 'Failed to connect to host' \
+                                      " #{host}:#{port}, #{e.message}"
         end
       else
         begin
           res = conn.send_request(method, request_path, payload, header)
         rescue => e
-          raise WebHDFS::ServerError, "Failed to connect to host #{host}:#{port}, #{e.message}"
+          raise WebHDFS::ServerError, 'Failed to connect to host' \
+                                      " #{host}:#{port}, #{e.message}"
         end
       end
 
       if @kerberos && res.code == '307'
-        itok = (res.header.get_fields('WWW-Authenticate') || ['']).pop.split(/\s+/).last
+        itok = (res.header.get_fields('WWW-Authenticate') ||
+                ['']).pop.split(/\s+/).last
         unless itok
-          raise WebHDFS::KerberosError, 'Server does not return WWW-Authenticate header'
+          raise WebHDFS::KerberosError, 'Server does not return ' \
+                                        'WWW-Authenticate header'
         end
 
         begin
@@ -379,9 +382,11 @@ module WebHDFS
               # ignore broken json response body
             end
           end
-          if detail && detail['RemoteException'] && KNOWN_ERRORS.include?(detail['RemoteException']['exception'])
+          if detail && detail['RemoteException'] &&
+             KNOWN_ERRORS.include?(detail['RemoteException']['exception'])
             sleep @retry_interval if @retry_interval > 0
-            return request(host, port, method, path, op, params, payload, header, retries + 1)
+            return request(host, port, method, path, op, params, payload,
+                           header, retries + 1)
           end
         end
 
@@ -397,7 +402,8 @@ module WebHDFS
         when '500'
           raise WebHDFS::ServerError, message
         else
-          raise WebHDFS::RequestFailedError, "response code:#{res.code}, message:#{message}"
+          raise WebHDFS::RequestFailedError, "response code:#{res.code}, " \
+                                             "message:#{message}"
         end
       end
     end

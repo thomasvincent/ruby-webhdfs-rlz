@@ -14,7 +14,9 @@ class FileUtilsTest < Test::Unit::TestCase
   end
 
   def test_copy_from_local_via_stream
-    WebHDFS::FileUtils.copy_from_local_via_stream('VERSION', '/user/jay/VERSION', verbose: true)
+    WebHDFS::FileUtils.copy_from_local_via_stream('VERSION',
+                                                  '/user/jay/VERSION',
+                                                  verbose: true)
     WebHDFS::FileUtils.rm('VERSION', verbose: true)
   end
 
