@@ -117,11 +117,12 @@ Note that openssl libraries must be available:
     client.ssl_cert = OpenSSL::X509::Certificate.new(open('/path/to/cert.pem'))
 
 ## AUTHORS
-
+Original Authors:
 * Kazuki Ohta <kazuki.ohta@gmail.com>
 * TAGOMORI Satoshi <tagomoris@gmail.com>
+* Refactoring done by Thomas Vincent <thomasvincent@gmail.com>
 
 ## LICENSE
-
+* Copyright: Copyright (c) 2016- Thomas Vincent
 * Copyright: Copyright (c) 2012- Fluentd Project
 * License: Apache License, Version 2.0
