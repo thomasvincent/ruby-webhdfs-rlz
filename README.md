@@ -1,10 +1,16 @@
-## Refacotored webhdfs - A client library implementation for Hadoop WebHDFS, and HttpFs, for Ruby
+## Refactored webhdfs - A client library implementation for Hadoop WebHDFS, and HttpFs, for Ruby
 
-The webhdfs gem is to access Hadoop WebHDFS (EXPERIMENTAL: and HttpFs). WebHDFS::Client is a client class, and WebHDFS::FileUtils is utility like 'fileutils'.
+The webhdfs gem is to access Hadoop WebHDFS (EXPERIMENTAL: and HttpFs). WebHDFS::Client is a client class, and WebHDFS::FileUtils is utility like 'fileutils'. 
 
 ## Installation
 
     gem install webhdfs
+
+## Difference between WebHDFS and httpfs
+
+https://www.linkedin.com/today/post/article/20140717115238-176301000-accessing-hdfs-using-the-webhdfs-rest-api-vs-httpfs
+
+WebHDFS vs HttpFs Major difference between WebHDFS and HttpFs: WebHDFS needs access to all nodes of the cluster and when some data is read it is transmitted from that node directly, whereas in HttpFs, a singe node will act similar to a "gateway" and will be a single point of data transfer to the client node. So, HttpFs could be choked during a large file transfer but the good thing is that we are minimizing the footprint required to access HDFS.
 
 ## Usage
 
