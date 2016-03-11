@@ -23,7 +23,7 @@ module WebHDFS
     end
 
     # Set the token to header authorization
-    def autorization(header)
+    def authorization(header)
       encoded_token = Base64.strict_encode64(@token)
       if header
         header['Authorization'] = "Negotiate #{encoded_token}"
