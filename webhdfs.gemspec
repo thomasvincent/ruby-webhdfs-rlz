@@ -7,8 +7,8 @@ Gem::Specification.new do |gem|
   gem.homepage    = 'https://github.com/kzk/webhdfs/'
   gem.summary     = gem.description
   gem.version     = File.read('VERSION').strip
-  gem.authors     = ['Kazuki Ohta', 'Satoshi Tagomori']
-  gem.email       = ['kazuki.ohta@gmail.com', 'tagomoris@gmail.com']
+  gem.authors     = ['Kazuki Ohta', 'Satoshi Tagomori', 'Thomas Vincent']
+  gem.email       = ['kazuki.ohta@gmail.com', 'tagomoris@gmail.com', 'thomas.vincent@gmail.com']
   gem.has_rdoc    = false
   gem.files       = Dir['lib/**/*', 'test/**/*', '*.gemspec', '*.md',
                         'AUTHORS', 'COPYING', 'Gemfile', 'VERSION']
