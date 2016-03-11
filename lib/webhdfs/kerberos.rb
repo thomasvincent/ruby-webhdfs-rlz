@@ -13,10 +13,10 @@ module WebHDFS
       @host = host
       @keytab = keytab
 
-      gsscli = GSSAPI::Simple.new(@host, 'HTTP', @kerberos_keytab)
+      @gsscli = GSSAPI::Simple.new(@host, 'HTTP', @kerberos_keytab)
       @token = nil
       begin
-        @token = gsscli.init_context
+        @token = @gsscli.init_context
       rescue => token_error
         raise WebHDFS::KerberosError, token_error.message
       end
@@ -31,6 +31,22 @@ module WebHDFS
         header = { 'Authorization' => "Negotiate #{encoded_token}" }
       end
       header
+    end
+
+    def check_response(response)
+      if @kerberos && response.code == '307'
+        itok = (response.header.get_fields('WWW-Authenticate') ||
+                ['']).pop.split(/\s+/).last
+        unless itok
+          raise WebHDFS::KerberosError, 'Server does not return ' \
+                                        'WWW-Authenticate header'
+        end
+        begin
+          @gsscli.init_context(Base64.strict_decode64(itok))
+        rescue => e
+          raise WebHDFS::KerberosError, e.message
+        end
+      end
     end
   end
 end

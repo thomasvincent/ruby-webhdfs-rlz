@@ -1,6 +1,6 @@
-require_relative 'client_v1'
+require_relative 'client_v2'
 
 module WebHDFS
-  class Client < ClientV1
+  class Client < ClientV2
   end
 end

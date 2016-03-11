@@ -35,3 +35,7 @@ end
 p = WebHDFS::Prueba.new(20)
 
 p.api('efren')
+
+a = WebHDFS::Prueba.new(20)
+
+a.api('efren') if a

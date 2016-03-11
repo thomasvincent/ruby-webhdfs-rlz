@@ -1,8 +1,3 @@
-<a href="https://codeclimate.com/github/thomasvincent/webhdfs"><img src="https://codeclimate.com/github/thomasvincent/webhdfs/badges/gpa.svg" /></a>
-<a href="https://codeclimate.com/github/thomasvincent/webhdfs/coverage"><img src="https://codeclimate.com/github/thomasvincent/webhdfs/badges/coverage.svg" /></a>
-<a href="https://codeclimate.com/github/thomasvincent/webhdfs"><img src="https://codeclimate.com/github/thomasvincent/webhdfs/badges/issue_count.svg" /></a>
-[![Build Status](https://travis-ci.org/thomasvincent/webhdfs.svg?branch=master)](https://travis-ci.org/thomasvincent/webhdfs)
-
 # webhdfs - A client library implementation for Hadoop WebHDFS, and HttpFs, for Ruby
 
 The webhdfs gem is to access Hadoop WebHDFS (EXPERIMENTAL: and HttpFs). WebHDFS::Client is a client class, and WebHDFS::FileUtils is utility like 'fileutils'.
