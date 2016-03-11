@@ -7,7 +7,7 @@ RSpec::Core::RakeTask.new(:spec) do |task|
   task.rspec_opts = ['--color', '--format', 'nested']
 end
 
-task :default => :spec
+task default: :spec
 
 Bundler::GemHelper.install_tasks
 
@@ -29,4 +29,3 @@ task :coverage do |_t|
   ENV['SIMPLE_COV'] = '1'
   Rake::Task['test'].invoke
 end
-
