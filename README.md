@@ -1,4 +1,4 @@
-[![Gem Version](https://badge.fury.io/rb/travis-build-tools.svg)](http://badge.fury.io/rb/travis-build-tools)
+[![Gem Version](https://badge.fury.io/rb/webhdfs-rlz.svg)](https://badge.fury.io/rb/webhdfs-rlz)
 [![Build Status](https://travis-ci.org/thomasvincent/webhdfs.svg?branch=master)](https://travis-ci.org/thomasvincent/webhdfs)
 
 ## Refactored fork of webhdfs - A client library implementation for Hadoop WebHDFS, and HttpFs, for Ruby
