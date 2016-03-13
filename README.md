@@ -1,4 +1,5 @@
 [![Gem Version](https://badge.fury.io/rb/webhdfs-rlz.svg)](https://badge.fury.io/rb/webhdfs-rlz)
+[![Code Climate](https://codeclimate.com/github/thomasvincent/webhdfs-rlz.png)](https://codeclimate.com/github/thomasvincent/webhdfs-rlz)
 [![Build Status](https://travis-ci.org/thomasvincent/webhdfs.svg?branch=master)](https://travis-ci.org/thomasvincent/webhdfs)
 
 ## Refactored fork of webhdfs - A client library implementation for Hadoop WebHDFS, and HttpFs, for Ruby
