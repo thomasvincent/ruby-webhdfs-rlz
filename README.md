@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/thomasvincent/webhdfs.svg?branch=master)](https://travis-ci.org/thomasvincent/webhdfs)
+
 ## Refactored fork of webhdfs - A client library implementation for Hadoop WebHDFS, and HttpFs, for Ruby
 
 The webhdfs gem is to access Hadoop WebHDFS (EXPERIMENTAL: and HttpFs). WebHDFS::Client is a client class, and WebHDFS::FileUtils is utility like 'fileutils'. This gem was created as the original gem wouldn't pass a very strict code review for a client. This gem aims to pass rubocop, reek, and follow basic OO best practices.
