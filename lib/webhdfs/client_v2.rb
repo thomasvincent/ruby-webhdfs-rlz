@@ -79,6 +79,20 @@ module WebHDFS
         end
     end
 
+    def checkPrivliage(optTable,optionsHash)
+      WebHDFS.check_options(options, OPT_TABLE[optTable])
+      unless options.key?(optionsHash[0]) || options.key?(optionsHash[1]) ||
+                 options.key?(optionsHash[0]) || options.key?(optionsHash[1])
+
+        if optionsHash[0] == 'modificationtime' or optionsHash[0] == 'modificationtime'
+            raise ArgumentError, "'chown' needs at least one of " \
+                               'modificationtime or accesstime'
+        elsif optionsHash[0] == 'owner' or optionsHash[0] == 'group'
+          raise ArgumentError, "'chown' needs at least one of owner or group"
+        end
+
+      end
+    end
     # curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=CREATE
     #                 [&overwrite=<true|false>][&blocksize=<LONG>]
     #                 [&replication=<SHORT>]
@@ -183,11 +197,7 @@ module WebHDFS
     # curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=SETOWNER
     #                          [&owner=<USER>][&group=<GROUP>]"
     def chown(path, options = {})
-      WebHDFS.check_options(options, OPT_TABLE['SETOWNER'])
-      unless options.key?('owner') || options.key?('group') ||
-             options.key?(:owner) || options.key?(:group)
-        raise ArgumentError, "'chown' needs at least one of owner or group"
-      end
+      checkPrivliage('SETOWNER',['owner','group'])
       res = operate_requests('PUT', path, 'SETOWNER', options)
       res.code == '200'
     end
@@ -209,12 +219,7 @@ module WebHDFS
     # motidicationtime: radix-10 logn integer
     # accesstime: radix-10 logn integer
     def touch(path, options = {})
-      WebHDFS.check_options(options, OPT_TABLE['SETTIMES'])
-      unless options.key?('modificationtime') || options.key?('accesstime') ||
-             options.key?(:modificationtime) || options.key?(:accesstime)
-        raise ArgumentError, "'chown' needs at least one of " \
-                               'modificationtime or accesstime'
-      end
+      checkPrivliage('SETTIMES',['modificationtime','accesstime'])
       res = operate_requests('PUT', path, 'SETTIMES', options)
       res.code == '200'
     end
