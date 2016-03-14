@@ -43,7 +43,7 @@ module WebHDFS
         end
         begin
           @gsscli.init_context(Base64.strict_decode64(itok))
-        rescue => e
+        rescue => error
           raise WebHDFS::KerberosError, e.message
         end
       end
