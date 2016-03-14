@@ -69,6 +69,16 @@ module WebHDFS
       }
     end
 
+    def checkCon(httpVerb,optTable,path,options,body = nil):
+        WebHDFS.check_options(options, OPT_TABLE[optTable])
+        # delete or mkdir
+        if body.nil?
+          return operate_requests(httpVerb, path, optTable, options)
+        else
+          return operate_requests(httpVerb, path, optTable, options,body)
+        end
+    end
+
     # curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=CREATE
     #                 [&overwrite=<true|false>][&blocksize=<LONG>]
     #                 [&replication=<SHORT>]
@@ -84,16 +94,14 @@ module WebHDFS
     #                      APPEND[&buffersize=<INT>]"
     def append(path, body, options = {})
       options = options.merge('data' => 'true') if @httpfs_mode
-      WebHDFS.check_options(options, OPT_TABLE['APPEND'])
-      res = operate_requests('POST', path, 'APPEND', options, body)
+      res = checkCon('POST','APPEND',path,options,body)
       res.code == '200'
     end
 
     # curl -i -L "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=OPEN
     #                [&offset=<LONG>][&length=<LONG>][&buffersize=<INT>]"
     def read(path, options = {})
-      WebHDFS.check_options(options, OPT_TABLE['OPEN'])
-      res = operate_requests('GET', path, 'OPEN', options)
+      res = checkCon('GET','OPEN',path,options)
       res.body
     end
 
@@ -102,8 +110,7 @@ module WebHDFS
     # curl -i -X PUT "http://<HOST>:<PORT>/<PATH>?op=
     #                     MKDIRS[&permission=<OCTAL>]"
     def mkdir(path, options = {})
-      WebHDFS.check_options(options, OPT_TABLE['MKDIRS'])
-      res = operate_requests('PUT', path, 'MKDIRS', options)
+      res = checkCon('PUT','MKDIRS',path,options)
       WebHDFS.check_success_json(res, 'boolean')
     end
 
@@ -122,31 +129,27 @@ module WebHDFS
     # curl -i -X DELETE "http://<host>:<port>/webhdfs/v1/<path>?op=DELETE
     #                          [&recursive=<true|false>]"
     def delete(path, options = {})
-      WebHDFS.check_options(options, OPT_TABLE['DELETE'])
-      res = operate_requests('DELETE', path, 'DELETE', options)
+      res = checkCon('DELETE','DELETE',path,options)
       WebHDFS.check_success_json(res, 'boolean')
     end
 
     # curl -i  "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETFILESTATUS"
     def stat(path, options = {})
-      WebHDFS.check_options(options, OPT_TABLE['GETFILESTATUS'])
-      res = operate_requests('GET', path, 'GETFILESTATUS', options)
+      res = checkCon('GET','GETFILESTATUS',path,options)
       WebHDFS.check_success_json(res, 'FileStatus')
     end
     alias getfilestatus stat
 
     # curl -i  "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=LISTSTATUS"
     def list(path, options = {})
-      WebHDFS.check_options(options, OPT_TABLE['LISTSTATUS'])
-      res = operate_requests('GET', path, 'LISTSTATUS', options)
+      res = checkCon('GET','LISTSTATUS',path,options)
       WebHDFS.check_success_json(res, 'FileStatuses')['FileStatus']
     end
     alias liststatus list
 
     # curl -i "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETCONTENTSUMMARY"
     def content_summary(path, options = {})
-      WebHDFS.check_options(options, OPT_TABLE['GETCONTENTSUMMARY'])
-      res = operate_requests('GET', path, 'GETCONTENTSUMMARY', options)
+      res = checkCon('GET','GETCONTENTSUMMARY',path,options)
       WebHDFS.check_success_json(res, 'ContentSummary')
     end
     alias getcontentsummary content_summary
