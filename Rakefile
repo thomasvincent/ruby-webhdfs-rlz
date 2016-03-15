@@ -1,23 +1,24 @@
-require 'bundler'
-Bundler::GemHelper.install_tasks
+# encoding: utf-8
 
-require 'rake/testtask'
+require 'rubygems'
 
-Rake::TestTask.new(:test) do |test|
-  test.libs << 'lib' << 'test'
-  test.test_files = FileList['test/webhdfs/*.rb']
-  test.verbose = true
+begin
+  require 'bundler/setup'
+rescue LoadError => e
+  abort e.message
 end
 
-task :doc do |_t|
-  command = 'bundle exec rdoc --markup=tomdoc --visibility=public ' \
-            '--include=lib --exclude=test'
-  `#{command}`
-end
+require 'rake'
 
-task :coverage do |_t|
-  ENV['SIMPLE_COV'] = '1'
-  Rake::Task['test'].invoke
-end
+require 'rubygems/tasks'
+Gem::Tasks.new
 
-task default: [:build]
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new
+
+task test: :spec
+task default: :spec
+
+require 'yard'
+YARD::Rake::YardocTask.new
+task doc: :yard

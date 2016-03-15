@@ -69,30 +69,31 @@ module WebHDFS
       }
     end
 
-    def checkCon(httpVerb,optTable,path,options,body = nil):
-        WebHDFS.check_options(options, OPT_TABLE[optTable])
-        # delete or mkdir
-        if body.nil?
-          return operate_requests(httpVerb, path, optTable, options)
-        else
-          return operate_requests(httpVerb, path, optTable, options,body)
-        end
+    def checkCon(httpVerb, optTable, path, options, body = nil)
+      WebHDFS.check_options(options, OPT_TABLE[optTable])
+      # delete or mkdir
+      if body.nil?
+        return operate_requests(httpVerb, path, optTable, options)
+      else
+        return operate_requests(httpVerb, path, optTable, options, body)
+      end
     end
 
-    def checkPrivliage(optTable,optionsHash)
+    def checkPrivliage(optTable, optionsHash)
       WebHDFS.check_options(options, OPT_TABLE[optTable])
       unless options.key?(optionsHash[0]) || options.key?(optionsHash[1]) ||
-                 options.key?(optionsHash[0]) || options.key?(optionsHash[1])
+             options.key?(optionsHash[0]) || options.key?(optionsHash[1])
 
-        if optionsHash[0] == 'modificationtime' or optionsHash[0] == 'modificationtime'
-            raise ArgumentError, "'chown' needs at least one of " \
-                               'modificationtime or accesstime'
-        elsif optionsHash[0] == 'owner' or optionsHash[0] == 'group'
+        if optionsHash[0] == 'modificationtime' || optionsHash[0] == 'modificationtime'
+          raise ArgumentError, "'chown' needs at least one of " \
+                             'modificationtime or accesstime'
+        elsif optionsHash[0] == 'owner' || optionsHash[0] == 'group'
           raise ArgumentError, "'chown' needs at least one of owner or group"
         end
 
       end
     end
+
     # curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=CREATE
     #                 [&overwrite=<true|false>][&blocksize=<LONG>]
     #                 [&replication=<SHORT>]
@@ -108,14 +109,14 @@ module WebHDFS
     #                      APPEND[&buffersize=<INT>]"
     def append(path, body, options = {})
       options = options.merge('data' => 'true') if @httpfs_mode
-      res = checkCon('POST','APPEND',path,options,body)
+      res = checkCon('POST', 'APPEND', path, options, body)
       res.code == '200'
     end
 
     # curl -i -L "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=OPEN
     #                [&offset=<LONG>][&length=<LONG>][&buffersize=<INT>]"
     def read(path, options = {})
-      res = checkCon('GET','OPEN',path,options)
+      res = checkCon('GET', 'OPEN', path, options)
       res.body
     end
 
@@ -124,7 +125,7 @@ module WebHDFS
     # curl -i -X PUT "http://<HOST>:<PORT>/<PATH>?op=
     #                     MKDIRS[&permission=<OCTAL>]"
     def mkdir(path, options = {})
-      res = checkCon('PUT','MKDIRS',path,options)
+      res = checkCon('PUT', 'MKDIRS', path, options)
       WebHDFS.check_success_json(res, 'boolean')
     end
 
@@ -143,27 +144,27 @@ module WebHDFS
     # curl -i -X DELETE "http://<host>:<port>/webhdfs/v1/<path>?op=DELETE
     #                          [&recursive=<true|false>]"
     def delete(path, options = {})
-      res = checkCon('DELETE','DELETE',path,options)
+      res = checkCon('DELETE', 'DELETE', path, options)
       WebHDFS.check_success_json(res, 'boolean')
     end
 
     # curl -i  "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETFILESTATUS"
     def stat(path, options = {})
-      res = checkCon('GET','GETFILESTATUS',path,options)
+      res = checkCon('GET', 'GETFILESTATUS', path, options)
       WebHDFS.check_success_json(res, 'FileStatus')
     end
     alias getfilestatus stat
 
     # curl -i  "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=LISTSTATUS"
     def list(path, options = {})
-      res = checkCon('GET','LISTSTATUS',path,options)
+      res = checkCon('GET', 'LISTSTATUS', path, options)
       WebHDFS.check_success_json(res, 'FileStatuses')['FileStatus']
     end
     alias liststatus list
 
     # curl -i "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETCONTENTSUMMARY"
     def content_summary(path, options = {})
-      res = checkCon('GET','GETCONTENTSUMMARY',path,options)
+      res = checkCon('GET', 'GETCONTENTSUMMARY', path, options)
       WebHDFS.check_success_json(res, 'ContentSummary')
     end
     alias getcontentsummary content_summary
@@ -197,7 +198,7 @@ module WebHDFS
     # curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=SETOWNER
     #                          [&owner=<USER>][&group=<GROUP>]"
     def chown(path, options = {})
-      checkPrivliage('SETOWNER',['owner','group'])
+      checkPrivliage('SETOWNER', %w(owner group))
       res = operate_requests('PUT', path, 'SETOWNER', options)
       res.code == '200'
     end
@@ -219,7 +220,7 @@ module WebHDFS
     # motidicationtime: radix-10 logn integer
     # accesstime: radix-10 logn integer
     def touch(path, options = {})
-      checkPrivliage('SETTIMES',['modificationtime','accesstime'])
+      checkPrivliage('SETTIMES', %w(modificationtime accesstime))
       res = operate_requests('PUT', path, 'SETTIMES', options)
       res.code == '200'
     end
