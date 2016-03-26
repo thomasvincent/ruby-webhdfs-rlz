@@ -2,6 +2,8 @@ source "https://rubygems.org"
 
 gemspec
 
+gem 'addressable'
+
 group :test do
   gem "rake"
   gem "bundler"
