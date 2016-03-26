@@ -1,6 +1,6 @@
 [![Gem Version](https://badge.fury.io/rb/webhdfs-rlz.svg)](https://badge.fury.io/rb/webhdfs-rlz)
 [![Code Climate](https://codeclimate.com/github/thomasvincent/webhdfs-rlz.png)](https://codeclimate.com/github/thomasvincent/webhdfs-rlz)
-[![Build Status](https://travis-ci.org/thomasvincent/webhdfs.svg?branch=master)](https://travis-ci.org/thomasvincent/webhdfs)
+[![Build Status](https://travis-ci.org/thomasvincent/webhdfs-rlz.svg?branch=master)](https://travis-ci.org/thomasvincent/webhdfs-rlz)
 [![Issue Count](https://codeclimate.com/github/thomasvincent/webhdfs-rlz/badges/issue_count.svg)](https://codeclimate.com/github/thomasvincent/webhdfs-rlz)
 [![Test Coverage](https://codeclimate.com/github/thomasvincent/webhdfs-rlz/badges/coverage.svg)](https://codeclimate.com/github/thomasvincent/webhdfs-rlz/coverage)
 
