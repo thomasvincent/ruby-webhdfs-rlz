@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/thomasvincent/ruby-webhdfs-rlz.svg?branch=master)](https://travis-ci.org/thomasvincent/ruby-webhdfs-rlz)
 [![Issue Count](https://codeclimate.com/github/thomasvincent/webhdfs-rlz/badges/issue_count.svg)](https://codeclimate.com/github/thomasvincent/webhdfs-rlz)
 [![Test Coverage](https://codeclimate.com/github/thomasvincent/webhdfs-rlz/badges/coverage.svg)](https://codeclimate.com/github/thomasvincent/webhdfs-rlz/coverage)
+[![Inline docs](http://inch-ci.org/github/thomasvincent/ruby-webhdfs-rlz.svg?branch=master)](http://inch-ci.org/github/thomasvincent/ruby-webhdfs-rlz)
 
 ## Refactored fork of webhdfs - A client library implementation for Hadoop WebHDFS, and HttpFs, for Ruby
 
